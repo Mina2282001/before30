@@ -1,0 +1,1782 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BEFORE 30</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --bg-card: #111111;
+            --bg-elevated: #1a1a1a;
+            --accent: #e8e4dc;
+            --accent-dim: #a09a8e;
+            --accent-glow: rgba(232, 228, 220, 0.08);
+            --text: #f0ece4;
+            --text-dim: #a8a29e;
+            --text-muted: #6b6560;
+            --danger: #c0392b;
+            --success: #27ae60;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        #particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            background: var(--accent-dim);
+            border-radius: 50%;
+            opacity: 0.2;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0) translateX(0);
+                opacity: 0.05;
+            }
+
+            25% {
+                transform: translateY(-100px) translateX(50px);
+                opacity: 0.25;
+            }
+
+            50% {
+                transform: translateY(-50px) translateX(-30px);
+                opacity: 0.1;
+            }
+
+            75% {
+                transform: translateY(-150px) translateX(20px);
+                opacity: 0.2;
+            }
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            padding: 0 20px;
+        }
+
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.5rem, 10vw, 7rem);
+            font-weight: 900;
+            letter-spacing: 8px;
+            color: var(--text);
+            margin-bottom: 20px;
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards 0.3s;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+            color: var(--text-dim);
+            max-width: 500px;
+            margin-bottom: 50px;
+            padding: 0 15px;
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards 0.6s;
+        }
+
+        .age-counter {
+            margin-bottom: 40px;
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards 0.9s;
+        }
+
+        .age-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: var(--accent-dim);
+            margin-bottom: 15px;
+        }
+
+        .age-display {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.2rem, 4vw, 2.5rem);
+            color: var(--text);
+            letter-spacing: 2px;
+        }
+
+        .age-display span {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .hero-cta {
+            padding: 16px 40px;
+            background: transparent;
+            border: 1px solid var(--accent-dim);
+            color: var(--accent);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.4s;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards 1.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .hero-cta::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--accent);
+            transition: left 0.4s;
+            z-index: -1;
+        }
+
+        .hero-cta:hover {
+            color: var(--bg);
+            box-shadow: 0 0 30px var(--accent-glow);
+        }
+
+        .hero-cta:hover::before {
+            left: 0;
+        }
+
+        .lock-screen {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 10, 10, 0.97);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 20px;
+        }
+
+        .lock-card,
+        .loading-card {
+            width: min(100%, 440px);
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 0 30px var(--accent-glow);
+            text-align: center;
+        }
+
+        .lock-input {
+            width: 100%;
+            margin: 20px 0 15px;
+            padding: 12px 14px;
+            background: var(--bg-elevated);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+        }
+
+        .lock-input:focus {
+            outline: none;
+            border-color: var(--accent-dim);
+        }
+
+        .lock-message {
+            margin-top: 12px;
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+
+        .lock-message.error {
+            color: var(--danger);
+        }
+
+        .lock-message.success {
+            color: var(--success);
+        }
+
+        .loading-screen {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 10, 10, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9998;
+            padding: 20px;
+        }
+
+        .status-banner {
+            margin: 20px auto 0;
+            max-width: 900px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            background: rgba(232, 228, 220, 0.08);
+            color: var(--text-dim);
+            text-align: center;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .status-banner.success {
+            color: var(--success);
+            border-color: rgba(39, 174, 96, 0.25);
+        }
+
+        .status-banner.error {
+            color: var(--danger);
+            border-color: rgba(192, 57, 43, 0.25);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        section {
+            position: relative;
+            z-index: 1;
+            padding: 80px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.8rem, 5vw, 3.5rem);
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 60px;
+            color: var(--text);
+            padding: 0 10px;
+        }
+
+        .section-title span {
+            color: var(--accent);
+        }
+
+        /* ===== TIMELINE (PREVIOUS SHAPE) ===== */
+        .timeline {
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: linear-gradient(to bottom, var(--accent-dim), transparent);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 50px;
+            opacity: 0;
+            transform: translateX(-30px);
+            transition: all 0.6s ease;
+        }
+
+        .timeline-item.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -33px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            background: var(--bg);
+            border: 2px solid var(--accent-dim);
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .timeline-item:hover .timeline-dot {
+            background: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .timeline-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 30px;
+            transition: all 0.3s;
+        }
+
+        .timeline-card:hover {
+            border-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 30px var(--accent-glow);
+            transform: translateX(5px);
+        }
+
+        .timeline-age {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 5px;
+        }
+
+        .timeline-heading {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.1rem, 3vw, 1.4rem);
+            font-weight: 600;
+            font-style: italic;
+            color: var(--text);
+            margin-bottom: 15px;
+            letter-spacing: 0.5px;
+        }
+
+        .timeline-show-label {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: var(--accent-dim);
+            margin-bottom: 10px;
+            margin-top: 15px;
+        }
+
+        .timeline-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1rem, 2.5vw, 1.15rem);
+            color: var(--text-dim);
+            line-height: 1.9;
+            font-weight: 400;
+        }
+
+        .timeline-text strong {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .timeline-then-label {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: var(--accent-dim);
+            margin-bottom: 10px;
+            margin-top: 20px;
+        }
+
+        .timeline-then {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.05rem, 2.5vw, 1.15rem);
+            color: var(--text);
+            line-height: 1.8;
+            font-weight: 500;
+            font-style: italic;
+        }
+
+        .timeline-then strong {
+            color: var(--accent);
+            font-weight: 700;
+            font-style: normal;
+        }
+
+        .roadmap {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .roadmap-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .roadmap-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .roadmap-card.active {
+            border-color: var(--accent);
+            box-shadow: 0 0 30px var(--accent-glow);
+            animation: pulse 2s infinite;
+        }
+
+        .roadmap-card.completed {
+            border-color: var(--success);
+            opacity: 0.7;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 20px var(--accent-glow);
+            }
+
+            50% {
+                box-shadow: 0 0 40px var(--accent-glow);
+            }
+        }
+
+        .roadmap-number {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 5vw, 2.5rem);
+            font-weight: 900;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        .roadmap-card.active .roadmap-number {
+            color: var(--accent);
+        }
+
+        .roadmap-card.completed .roadmap-number {
+            color: var(--success);
+        }
+
+        .roadmap-title {
+            font-weight: 600;
+            font-size: clamp(0.85rem, 2vw, 0.95rem);
+            margin-bottom: 8px;
+        }
+
+        .roadmap-status {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .roadmap-card.active .roadmap-status {
+            background: rgba(232, 228, 220, 0.1);
+            color: var(--accent);
+        }
+
+        .roadmap-card.completed .roadmap-status {
+            background: rgba(39, 174, 96, 0.15);
+            color: var(--success);
+        }
+
+        .roadmap-card:not(.active):not(.completed) .roadmap-status {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-muted);
+        }
+
+        .trackers-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .tracker-panel {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 30px;
+        }
+
+        .tracker-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .tracker-icon {
+            font-size: 1.8rem;
+        }
+
+        .tracker-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.1rem, 3vw, 1.3rem);
+            font-weight: 700;
+        }
+
+        .tracker-section {
+            margin-bottom: 25px;
+        }
+
+        .tracker-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-dim), var(--accent));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            text-align: right;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .input-group input,
+        .input-group select {
+            flex: 1;
+            min-width: 0;
+            padding: 10px 14px;
+            background: var(--bg-elevated);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: var(--accent-dim);
+        }
+
+        .btn-small {
+            padding: 10px 18px;
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            color: var(--bg);
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .btn-small:hover {
+            box-shadow: 0 0 20px var(--accent-glow);
+            transform: translateY(-1px);
+        }
+
+        .streak-display {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 5vw, 2.5rem);
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .streak-label {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .day-checkbox {
+            text-align: center;
+        }
+
+        .day-checkbox label {
+            display: block;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .day-checkbox input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            accent-color: var(--accent-dim);
+            cursor: pointer;
+        }
+
+        .pr-log {
+            margin-top: 30px;
+            max-height: 300px;
+            overflow-y: auto;
+            border-radius: 8px;
+            padding: 15px;
+
+        }
+
+        .pr-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            background: var(--bg-elevated);
+            color: var(--text-dim);
+
+
+        }
+
+        .pr-item strong {
+            color: var(--text-dim);
+        }
+
+        .pr-item span {
+            color: var(--text-dim);
+        }
+
+        .pr-item>div:last-child {
+            color: var(--accent);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .notes-area {
+            width: 100%;
+            min-height: 80px;
+            padding: 12px;
+            background: var(--bg-elevated);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            resize: vertical;
+        }
+
+        .notes-area:focus {
+            outline: none;
+            border-color: var(--accent-dim);
+        }
+
+        .notes-list {
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .note-item {
+            background: var(--bg-elevated);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1rem;
+            color: var(--text-dim);
+            line-height: 1.6;
+            position: relative;
+            padding-left: 40px;
+            touch-action: pan-y;
+            user-select: none;
+        }
+
+        .note-item::before {
+            content: attr(data-number);
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: 'Playfair Display', serif;
+            font-size: 0.75rem;
+            color: var(--accent-dim);
+            font-weight: 700;
+        }
+
+        .note-item .note-date {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 6px;
+            display: block;
+        }
+
+        .notes-empty {
+            text-align: center;
+            color: var(--text-muted);
+            font-style: italic;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1rem;
+            padding: 20px;
+        }
+
+        .notes-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            margin-top: 25px;
+        }
+
+        .dark-moments {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        .reveal-btn {
+            padding: 18px 50px;
+            background: transparent;
+            border: 2px solid var(--danger);
+            color: var(--danger);
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(0.85rem, 2.5vw, 1rem);
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.4s;
+            margin-bottom: 40px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .reveal-btn:hover {
+            background: var(--danger);
+            color: var(--text);
+            box-shadow: 0 0 40px rgba(192, 57, 43, 0.3);
+        }
+
+        .hidden-letter {
+            display: none;
+            background: var(--bg-card);
+            border: 1px solid rgba(192, 57, 43, 0.2);
+            border-radius: 16px;
+            padding: clamp(25px, 5vw, 50px);
+            text-align: left;
+            line-height: 2;
+            font-size: clamp(0.95rem, 2.5vw, 1.05rem);
+            color: var(--text-dim);
+        }
+
+        .hidden-letter.visible {
+            display: block;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .hidden-letter strong {
+            color: var(--text);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .quote-carousel {
+            margin-top: 50px;
+            padding: clamp(25px, 5vw, 40px);
+            background: var(--bg-card);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: all 0.3s;
+            user-select: none;
+        }
+
+        .quote-carousel:hover {
+            border-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .quote-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.1rem, 3vw, 1.3rem);
+            font-style: italic;
+            color: var(--text);
+            margin-bottom: 15px;
+            min-height: 60px;
+            line-height: 1.6;
+        }
+
+        .quote-hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 10px;
+        }
+
+        .quote-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .quote-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .quote-dot.active {
+            background: var(--accent);
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        .countdown-section {
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .countdown-display {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.5rem, 8vw, 6rem);
+            font-weight: 900;
+            color: var(--accent);
+            margin: 20px 0;
+            text-shadow: 0 0 40px var(--accent-glow);
+        }
+
+        .countdown-label {
+            font-size: clamp(0.8rem, 2.5vw, 1rem);
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+        }
+
+        .countdown-question {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.2rem, 3.5vw, 1.5rem);
+            margin-top: 30px;
+            color: var(--text);
+            font-style: italic;
+        }
+
+        .paths-visual {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+            margin-top: 50px;
+            flex-wrap: wrap;
+        }
+
+        .path-card {
+            flex: 1;
+            min-width: 250px;
+            max-width: 350px;
+            padding: clamp(25px, 5vw, 40px);
+            border-radius: 16px;
+            text-align: center;
+            transition: all 0.5s;
+        }
+
+        .path-stay {
+            background: linear-gradient(180deg, var(--bg-card), #0a0a0a);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            opacity: 0.5;
+        }
+
+        .path-go {
+            background: linear-gradient(180deg, var(--bg-card), rgba(232, 228, 220, 0.03));
+            border: 1px solid rgba(232, 228, 220, 0.15);
+            box-shadow: 0 0 30px var(--accent-glow);
+        }
+
+        .path-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.4rem, 4vw, 1.8rem);
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .path-stay .path-title {
+            color: var(--text-muted);
+        }
+
+        .path-go .path-title {
+            color: var(--accent);
+        }
+
+        .path-desc {
+            font-size: clamp(0.85rem, 2.5vw, 0.9rem);
+            color: var(--text-dim);
+            line-height: 1.8;
+        }
+
+        .checkin-section {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+            padding: 0 15px;
+        }
+
+        .checkin-questions {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            margin: 40px 0;
+        }
+
+        .checkin-q {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 25px;
+            text-align: left;
+        }
+
+        .checkin-q-text {
+            font-size: clamp(1rem, 3vw, 1.1rem);
+            margin-bottom: 15px;
+            color: var(--text);
+        }
+
+        .checkin-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .checkin-btn {
+            flex: 1;
+            padding: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--bg-elevated);
+            color: var(--text-dim);
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+        }
+
+        .checkin-btn.yes:hover,
+        .checkin-btn.yes.active {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        .checkin-btn.no:hover,
+        .checkin-btn.no.active {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+
+        .checkin-result {
+            margin-top: 30px;
+            padding: 30px;
+            border-radius: 12px;
+            display: none;
+        }
+
+        .checkin-result.success {
+            display: block;
+            background: rgba(39, 174, 96, 0.1);
+            border: 1px solid var(--success);
+        }
+
+        .checkin-result.fail {
+            display: block;
+            background: rgba(192, 57, 43, 0.1);
+            border: 1px solid var(--danger);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            margin-top: 30px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            font-size: clamp(0.65rem, 2vw, 0.75rem);
+            font-weight: 600;
+            background: var(--bg-elevated);
+            color: var(--text-muted);
+        }
+
+        .calendar-day.both {
+            background: var(--accent);
+            color: var(--bg);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .calendar-day.english {
+            background: rgba(232, 228, 220, 0.2);
+            color: var(--accent);
+        }
+
+        .calendar-day.gym {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text);
+        }
+
+        footer {
+            text-align: center;
+            padding: 80px 20px 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .footer-quote {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.2rem, 3.5vw, 1.5rem);
+            color: var(--text);
+            margin-bottom: 20px;
+        }
+
+        .footer-text {
+            color: var(--text-muted);
+            font-size: clamp(0.75rem, 2.5vw, 0.85rem);
+        }
+
+        .footer-updated {
+            margin-top: 15px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .focus-mode-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg);
+            z-index: 9999;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .focus-mode-overlay.active {
+            display: flex;
+        }
+
+        .focus-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 6vw, 3rem);
+            margin-bottom: 20px;
+        }
+
+        .focus-timer {
+            font-size: clamp(3rem, 10vw, 5rem);
+            font-weight: 700;
+            color: var(--accent);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .focus-close {
+            margin-top: 40px;
+            padding: 12px 30px;
+            background: transparent;
+            border: 1px solid var(--text-muted);
+            color: var(--text-muted);
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .focus-close:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-dim);
+            border-radius: 3px;
+        }
+
+        @media (max-width: 900px) {
+            .trackers-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .timeline {
+                padding-left: 30px;
+            }
+
+            .timeline-dot {
+                left: -28px;
+                width: 10px;
+                height: 10px;
+            }
+
+            .timeline-card {
+                padding: 20px;
+            }
+
+            .roadmap {
+                grid-template-columns: 1fr;
+            }
+
+            .paths-visual {
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+            }
+
+            .path-card {
+                max-width: 100%;
+                width: 100%;
+            }
+
+            .input-group {
+                flex-direction: column;
+            }
+
+            .input-group .btn-small {
+                width: 100%;
+            }
+
+            .checkbox-grid {
+                gap: 4px;
+            }
+
+            .day-checkbox label {
+                font-size: 0.6rem;
+            }
+
+            .day-checkbox input[type="checkbox"] {
+                width: 20px;
+                height: 20px;
+            }
+
+            .calendar-grid {
+                gap: 4px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            section {
+                padding: 60px 15px;
+            }
+
+            .hero {
+                padding: 0 15px;
+            }
+
+            .hero-title {
+                letter-spacing: 4px;
+            }
+
+            .hero-cta {
+                padding: 14px 30px;
+                font-size: 0.8rem;
+                letter-spacing: 2px;
+            }
+
+            .timeline {
+                padding-left: 25px;
+            }
+
+            .timeline-dot {
+                left: -24px;
+            }
+
+            .tracker-panel {
+                padding: 20px;
+            }
+
+            .checkin-q {
+                padding: 20px;
+            }
+
+            .checkin-buttons {
+                gap: 10px;
+            }
+
+            .checkin-btn {
+                padding: 12px;
+            }
+
+            .reveal-btn {
+                padding: 14px 30px;
+            }
+
+            .quote-carousel {
+                padding: 20px;
+            }
+
+            .hidden-letter {
+                padding: 20px;
+            }
+        }
+
+        @media (min-width: 1400px) {
+            section {
+                max-width: 1400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <audio id="backgroundMusic" preload="auto" autoplay loop playsinline style="display:none;">
+        <source src="ludovico-einaudi-experience-official-visualizer_de7rz0LW.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="lockScreen" class="lock-screen">
+        <div class="lock-card">
+            <h1 class="hero-title"
+                style="margin-bottom:15px;font-size:clamp(2rem,6vw,3rem);letter-spacing:4px;opacity:1;animation:none;">
+                BEFORE 30</h1>
+            <p class="hero-subtitle" style="margin-bottom:20px;opacity:1;animation:none;">Enter the master password to
+                unlock your private dashboard.</p>
+            <input id="passwordInput" class="lock-input" type="password" placeholder="Master password"
+                autocomplete="off" autocapitalize="none" spellcheck="false">
+            <button id="unlockButton" class="hero-cta" style="opacity:1;animation:none;">Unlock</button>
+            <p id="lockMessage" class="lock-message">Only the master password can unlock this space.</p>
+        </div>
+    </div>
+
+    <div id="loadingScreen" class="loading-screen" hidden>
+        <div class="loading-card">
+            <h2 class="section-title" style="margin-bottom:18px;font-size:clamp(1.5rem,4vw,2rem);">Loading</h2>
+            <p id="loadingText" class="hero-subtitle" style="margin-bottom:0;opacity:1;animation:none;">Loading your
+                data from Firestore...</p>
+        </div>
+    </div>
+
+    <main id="appShell" hidden>
+        <div id="particles"></div>
+        <div id="syncStatus" class="status-banner" hidden></div>
+
+        <div class="focus-mode-overlay" id="focusOverlay">
+            <div class="focus-title" id="focusTitle">FOCUS</div>
+            <div class="focus-timer" id="focusTimer">25:00</div>
+            <button class="focus-close" id="closeFocusButton">End Focus</button>
+        </div>
+
+        <section class="hero">
+            <h1 class="hero-title">BEFORE 30</h1>
+            <p class="hero-subtitle">This is the line between who I was and who I will become</p>
+            <img src="believe-500-196.png" alt="Believe"
+                style="display:block;margin:0 auto;max-width:100%;height:auto;opacity:0.9;margin-bottom:25px;max-width:500px;width:90%;">
+            <div class="age-counter">
+                <div class="age-label">Time is moving. So should I.</div>
+                <div class="age-display" id="ageDisplay">Calculating...</div>
+            </div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+                <a href="#story" class="hero-cta">Read My Story</a>
+                <button type="button" id="focusButton" class="hero-cta" data-title="FOCUS">Enter Focus Mode</button>
+            </div>
+        </section>
+
+        <section id="story">
+            <h2 class="section-title">My <span>Story</span></h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-card">
+                        <div class="timeline-age">Age 7</div>
+                        <div class="timeline-heading">Father passed away.</div>
+                        <div class="timeline-text">This was the day everything changed.</div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-card">
+                        <div class="timeline-age">Age 13</div>
+                        <div class="timeline-heading">First job.</div>
+                        <div class="timeline-text">While other kids were playing,<br>I was searching for work.<br>
+                            My first job was carrying heavy water pumps from delivery trucks into a store and loading
+                            them into customers' cars.<br>
+
+                            The pumps were too heavy for a 13-year-old boy.<br>
+
+                            Some days, when nobody was looking, I cried in secret.<br>
+
+                            But I came back the next day and did it again.<br>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-card">
+                        <div class="timeline-age">Factory Period</div>
+                        <div class="timeline-heading">The night shift nightmare.</div>
+                        <div class="timeline-text">
+                            Night shift:<br>8 PM &rarr; 7 AM<br><br>
+                            School:<br>8 AM &rarr; 2 PM<br><br>
+                            Sleep:<br>5 hours
+                        </div>
+                        <div class="timeline-then-label">Then:</div>
+                        <div class="timeline-then"><strong>You survived this.</strong><br>Why are you doubting yourself
+                            now?</div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-card">
+                        <div class="timeline-age">Tourism Years</div>
+                        <div class="timeline-heading">The mask.</div>
+                        <div class="timeline-text">
+                            Smiling outside.<br>
+                            Exhausted inside.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-card">
+                        <div class="timeline-age">Work From Home</div>
+                        <div class="timeline-heading">The first breath of peace.</div>
+                        <div class="timeline-text">
+                            First taste of peace.<br>
+                            First chance to rebuild.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="text-align:center;margin-top:40px;">
+                <img src="a qout 408-529.png" alt="Move in silence"
+                    style="display:block;margin:0 auto;max-width:100%;height:auto;opacity:0.9;max-width:320px;width:90%;">
+            </div>
+        </section>
+
+        <section style="text-align:center;padding:30px 20px 10px;">
+            <img src="i can 514-236.png" alt="I Can"
+                style="display:block;margin:0 auto;max-width:100%;height:auto;opacity:0.9;max-width:514px;width:95%;">
+        </section>
+
+        <section id="dream">
+            <h2 class="section-title">The <span>Dream</span></h2>
+            <div
+                style="text-align: center; color: var(--text-dim); margin-bottom: 40px; font-size: clamp(0.95rem, 2.5vw, 1.1rem); font-family: 'Cormorant Garamond', serif; font-style: italic;">
+                TRAVEL. LIVE ABROAD. BREATHE FREE AIR.
+            </div>
+
+            <div class="roadmap">
+                <div class="roadmap-card active">
+                    <div class="roadmap-number">01</div>
+                    <div class="roadmap-title">Master English</div>
+                    <div class="roadmap-status">In Progress</div>
+                </div>
+                <div class="roadmap-card">
+                    <div class="roadmap-number">02</div>
+                    <div class="roadmap-title">Find High-Paying Remote Job</div>
+                    <div class="roadmap-status">Upcoming</div>
+                </div>
+                <div class="roadmap-card">
+                    <div class="roadmap-number">03</div>
+                    <div class="roadmap-title">Save & Learn German</div>
+                    <div class="roadmap-status">Upcoming</div>
+                </div>
+                <div class="roadmap-card">
+                    <div class="roadmap-number">04</div>
+                    <div class="roadmap-title">Apply for German Visa</div>
+                    <div class="roadmap-status">Upcoming</div>
+                </div>
+                <div class="roadmap-card">
+                    <div class="roadmap-number">05</div>
+                    <div class="roadmap-title">New Life in Germany</div>
+                    <div class="roadmap-status">The Dream</div>
+                </div>
+            </div>
+            <div style="text-align:center;margin-top:45px;">
+                <img src="a qout-350-657.png" alt="Only you can change your future"
+                    style="display:block;margin:0 auto;max-width:100%;height:auto;opacity:0.9;max-width:350px;width:85%;">
+            </div>
+
+
+        </section>
+
+        <section id="trackers">
+            <h2 class="section-title">Progress <span>Trackers</span></h2>
+            <div class="trackers-grid">
+                <div class="tracker-panel">
+                    <div class="tracker-header">
+                        <span class="tracker-icon">&#128218;</span>
+                        <span class="tracker-title">English Progress</span>
+                    </div>
+
+                    <div class="tracker-section">
+                        <div class="tracker-label">Current Level</div>
+                        <div class="input-group">
+                            <select id="englishLevel">
+                                <option value="A1">A1 - Beginner</option>
+                                <option value="A2">A2 - Elementary</option>
+                                <option value="B1">B1 - Intermediate</option>
+                                <option value="B2">B2 - Upper Intermediate</option>
+                                <option value="C1">C1 - Advanced</option>
+                                <option value="C2">C2 - Mastery</option>
+                            </select>
+                            <button class="btn-small" id="saveEnglishLevelButton">Save</button>
+                        </div>
+                    </div>
+
+                    <div class="tracker-section">
+                        <div class="tracker-label">Progress to Next Level</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="englishProgress" style="width: 0%"></div>
+                        </div>
+                        <div class="progress-text" id="englishProgressText">0%</div>
+                    </div>
+
+                    <div class="tracker-section">
+                        <div class="tracker-label">Study Streak</div>
+                        <div>
+                            <span class="streak-display" id="studyStreak">0</span>
+                            <span class="streak-label"> days studying streak🔥</span>
+                        </div>
+                    </div>
+
+                    <div class="tracker-section">
+                        <div class="tracker-label">Resources</div>
+                        <div class="input-group">
+                            <input type="text" id="resourceInput" placeholder="Add resource (Duolingo, Anki, etc.)">
+                            <button class="btn-small" id="addResourceButton">Add</button>
+                        </div>
+                        <div id="resourcesList" style="margin-top: 10px;"></div>
+                    </div>
+
+                    <div class="tracker-section">
+                        <div class="tracker-label">Today's Notes (New words/phrases)</div>
+                        <textarea class="notes-area" id="englishNotes"
+                            placeholder="Write new words or phrases you learned today..."></textarea>
+                        <div style="margin-top:10px;">
+                            <button class="btn-small" id="saveEnglishNotesButton" style="width:100%;">Save Note</button>
+                        </div>
+                        <div class="notes-label" style="margin-top:10px;">Swipe any note left or right to delete it
+                        </div>
+                        <div class="notes-list" id="notesList">
+                            <div class="notes-empty">No notes yet. Start writing...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tracker-panel">
+                    <div style="text-align:center;margin-bottom:15px;">
+                        <img src="a qout 400-406.png" alt="The Struggle"
+                            style="display:block;margin:0 auto;max-width:100%;height:auto;opacity:0.9;max-width:280px;width:90%;border-radius:8px;">
+                    </div>
+                    <div class="tracker-header">
+                        <span class="tracker-icon">&#128170;</span>
+                        <span class="tracker-title">Gym Progress</span>
+                    </div>
+
+                    <div class="tracker-section">
+                        <div class="tracker-label">Weight Tracker</div>
+                        <div class="input-group">
+                            <input type="number" id="startWeight" placeholder="Start (kg)">
+                            <input type="number" id="goalWeight" placeholder="Goal (kg)">
+                            <input type="number" id="currentWeight" placeholder="Current (kg)">
+                            <button class="btn-small" id="saveWeightButton">Save</button>
+                        </div>
+                        <div style="margin-top: 12px; font-size: 0.85rem; color: var(--text-dim);">
+                            Start: <span id="displayStartWeight"
+                                style="color: var(--accent); font-weight: 600;">--</span> kg |
+                            Goal: <span id="displayGoalWeight" style="color: var(--accent); font-weight: 600;">--</span>
+                            kg |
+                            Current: <span id="displayCurrentWeight"
+                                style="color: var(--accent); font-weight: 600;">--</span> kg
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <div class="tracker-label">Progress to Goal</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="weightProgress" style="width: 0%"></div>
+                            </div>
+                            <div class="progress-text" id="weightProgressText">0%</div>
+                        </div>
+                    </div>
+
+                    <div class="tracker-section">
+                        <div class="tracker-label">Workout Streak</div>
+                        <div>
+                            <span class="streak-display" id="gymStreak">0</span>
+                            <span class="streak-label"> days workout streak🔥</span>
+                        </div>
+                    </div>
+
+
+
+                    <div class="tracker-section">
+                        <div class="tracker-label">Personal Records</div>
+                        <div class="input-group">
+                            <select id="prLift">
+                                <option value="Bench Press">Bench Press</option>
+                                <option value="Squat">Squat</option>
+                                <option value="biceps">biceps</option>
+                                <option value="triceps">triceps</option>
+                                <option value="Leg Press">Leg Press</option>
+                                <option value="Leg Extension">Leg Extension</option>
+
+                            </select>
+                            <input type="number" id="prWeight" placeholder="Weight (kg)">
+                            <input type="number" id="prReps" placeholder="Reps" style="max-width:80px;">
+                            <button class="btn-small" id="addPrButton">Add PR</button>
+                        </div>
+                        <div class="pr-log" id="prLog"></div>
+                    </div>
+
+
+                </div>
+            </div>
+        </section>
+
+        <section id="dark">
+            <div class="dark-moments">
+                <h2 class="section-title">When You Want to <span>Quit</span></h2>
+                <button class="reveal-btn" id="revealButton">Read This</button>
+
+
+
+                <div class="hidden-letter" id="hiddenLetter">
+                    <p>Do you really want to spend another 10 years:<br>Serving tables?<br>Pretending to be someone
+                        else?<br>Living paycheck to paycheck?<br>Watching others live your dream?</p>
+                    <br>
+                    <p>Your father isn't here.</p>
+                    <p>Your mother sacrificed everything.</p>
+                    <p>Thirteen-year-old you searched for work because your family needed help.</p>
+                    <p>Factory-you survived on five hours of sleep.</p>
+                    <p>Tourism-you survived exhaustion.</p>
+                    <p>Current-you finally has a chance.</p>
+                    <p>Don't throw it away.</p>
+
+                    <p>This &mdash; learning English, working out, applying for jobs &mdash; this is <strong>not harder
+                            than that</strong>.</p>
+                    <p>You have already done the impossible. This is just the next step.</p>
+                    <p><strong>Do not let the boy who suffered through all of that down.</strong></p>
+                    <p>He is counting on you.</p>
+                    <p>Nobody is coming to save you.</p>
+                    <p>But you have already saved yourself many times before.</p>
+                    <br>
+                    <br>
+                    <p><strong>Go do one small thing.</strong></p>
+                    <p><strong>One English lesson.</strong></p>
+                    <p><strong>One gym workout.</strong></p>
+                    <p><strong>One job application.</strong></p>
+                    <p><strong>One German lesson..</strong></p>
+                    <p><strong>Just one.</strong></p>
+                    <br>
+                    <div style="text-align:center;margin-top:20px;">
+                        <img src="a qout 315-415.png" alt="Discipline or Regret"
+                            style="display:block;margin:0 auto;max-width:100%;height:auto;opacity:0.9;max-width:315px;width:90%;">
+                    </div>
+                </div>
+                <div style="text-align:center;margin:25px 0;">
+                    <img src="do or die-131-221.png" alt="Do or Die"
+                        style="display:block;margin:0 auto;max-width:100%;height:auto;opacity:0.9;max-width:130px;width:50%;">
+                </div>
+
+                <div class="quote-carousel" id="quoteCarousel">
+                    <div class="quote-text" id="quoteText">"The pain of discipline is nothing compared to the pain of
+                        regret"</div>
+                    <div class="quote-hint">Click to change</div>
+                    <div class="quote-dots">
+                        <div class="quote-dot active" data-index="0"></div>
+                        <div class="quote-dot" data-index="1"></div>
+                        <div class="quote-dot" data-index="2"></div>
+                        <div class="quote-dot" data-index="3"></div>
+                        <div class="quote-dot" data-index="4"></div>
+                        <div class="quote-dot" data-index="5"></div>
+                        <div class="quote-dot" data-index="6"></div>
+                        <div class="quote-dot" data-index="7"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="countdown-section">
+            <div style="text-align:center;margin-bottom:35px;">
+                <img src="a qout 361-549.png" alt="Life is a game"
+                    style="display:block;margin:0 auto;max-width:100%;height:auto;opacity:0.9;max-width:360px;width:90%;">
+            </div>
+            <h2 class="section-title">The <span>Clock</span></h2>
+            <div class="countdown-label">Days until 30th birthday</div>
+            <div class="countdown-display" id="countdownDisplay">---</div>
+            <div style="text-align:center;margin:30px 0;">
+                <img src="life is short ,live it -184-239.png" alt="Life is short, live it"
+                    style="display:block;margin:0 auto;max-width:100%;height:auto;opacity:0.9;max-width:184px;width:60%;">
+            </div>
+            <div class="countdown-question">If not now, then when? If not you, then who?</div>
+
+            <div class="paths-visual">
+                <div class="path-card path-stay">
+                    <div class="path-title">Stay</div>
+                    <div class="path-desc">The same life. The same cycle. The same mask. The same exhaustion. Forever.
+                    </div>
+                </div>
+                <div class="path-card path-go">
+                    <div class="path-title">Go</div>
+                    <div class="path-desc">Germany. Freedom. A life you chose. The person you were meant to become.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="checkin">
+            <h2 class="section-title">Daily <span>Check-In</span></h2>
+            <div style="text-align:center;margin-bottom:25px;">
+                <img src="remember why you here-251-304.png" alt="Remember why you started"
+                    style="display:block;margin:0 auto;max-width:100%;height:auto;opacity:0.9;max-width:250px;width:80%;">
+            </div>
+            <div class="checkin-section">
+                <div class="checkin-questions">
+                    <div class="checkin-q">
+                        <div class="checkin-q-text">Did you study English today?</div>
+                        <div class="checkin-buttons">
+                            <button class="checkin-btn yes" id="engYes">YES</button>
+                            <button class="checkin-btn no" id="engNo">NO</button>
+                        </div>
+                    </div>
+                    <div class="checkin-q">
+                        <div class="checkin-q-text">Did you workout today?</div>
+                        <div class="checkin-buttons">
+                            <button class="checkin-btn yes" id="gymYes">YES</button>
+                            <button class="checkin-btn no" id="gymNo">NO</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checkin-result" id="checkinResult"></div>
+
+                <div style="margin-top: 40px;">
+                    <div class="tracker-label">This Month's Calendar</div>
+                    <div class="calendar-grid" id="calendarGrid"></div>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <div class="footer-quote">I am not getting younger.<br>But I am getting stronger.</div>
+            <div class="footer-text">Built by me, for me. Before 30.</div>
+            <div class="footer-updated" id="lastUpdated"></div>
+        </footer>
+
+        <script type="module" src="./app.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const audio = document.getElementById('backgroundMusic');
+                if (!audio) return;
+
+                const startPlayback = () => {
+                    audio.volume = 0.2;
+                    audio.muted = false;
+                    const playPromise = audio.play();
+                    if (playPromise && typeof playPromise.catch === 'function') {
+                        playPromise.catch(() => {});
+                    }
+                };
+
+                startPlayback();
+                document.addEventListener('pointerdown', startPlayback, { once: true });
+                document.addEventListener('keydown', startPlayback, { once: true });
+            });
+        </script>
+    </main>
+</body>
+
+</html>
