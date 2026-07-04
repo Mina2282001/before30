@@ -23,14 +23,17 @@ const LEVELS = {
 const defaultEnglish = {
   level: 'A1',
   resources: [],
-  notes: []
+  notes: [],
+  hours: 0
 };
 
 const defaultGym = {
   startWeight: '',
   goalWeight: '',
   currentWeight: '',
-  prs: []
+  prs: [],
+  hours: 0,
+  weightLog: []
 };
 
 const defaultStreaks = {
@@ -48,6 +51,10 @@ const state = {
 let firebaseReady = false;
 let unsubscribeFns = [];
 let focusInterval;
+
+const today = new Date();
+let calendarViewYear = today.getFullYear();
+let calendarViewMonth = today.getMonth();
 
 function $(id) {
   return document.getElementById(id);
@@ -217,6 +224,8 @@ const quotes = [
   'I was never given a clear road. So I became someone who keeps walking anyway.',
   'You don’t always get to choose the load, but you can choose how to carry it.',
   'You remain dead for eternity, but you are alive for only a brief moment.',
+  'If you only do what you can do, you will never be more than who you are now.',
+  'The person I want to become lives beyond the things I am comfortable doing today.',
 ];
 
 let currentQuote = 0;
@@ -251,6 +260,10 @@ function renderEnglish() {
   const englishLevel = $('englishLevel');
   if (englishLevel) {
     englishLevel.value = state.english.level || 'A1';
+  }
+  const englishHoursInput = $('englishHoursInput');
+  if (englishHoursInput && document.activeElement !== englishHoursInput) {
+    englishHoursInput.value = state.english.hours || '';
   }
   const progress = LEVELS[state.english.level] || 0;
   const progressBar = $('englishProgress');
@@ -380,14 +393,85 @@ function renderGym() {
   if (prLog) {
     const prs = normalizeGymPrs(state.gym.prs || []);
     prLog.innerHTML = prs.length
-      ? prs.map((entry) => `
+      ? prs.map((entry, index) => `
           <div class="pr-item">
-            <div><strong>${entry.workout}</strong><br><span>${entry.weight} kg × ${entry.reps} reps</span></div>
-            <div style="text-align:right;color:var(--accent);font-size:0.8rem;">${entry.date}</div>
+            <div>
+              <strong>${entry.workout}</strong><br>
+              <span>${entry.weight} kg × ${entry.reps} reps</span>
+              <div class="pr-actions">
+                <button type="button" data-pr-edit="${index}">Edit</button>
+                <button type="button" class="pr-delete" data-pr-delete="${index}">Delete</button>
+              </div>
+            </div>
+            <div style="text-align:right;color:var(--accent);font-size:0.8rem;white-space:nowrap;">${entry.date}</div>
           </div>
         `).join('')
       : '<div class="notes-empty">No personal records yet.</div>';
   }
+
+  const hoursInput = $('gymHoursInput');
+  if (hoursInput && document.activeElement !== hoursInput) {
+    hoursInput.value = state.gym.hours || '';
+  }
+
+  renderWeightLog();
+}
+
+function renderWeightLog() {
+  const log = $('weightLog');
+  if (!log) return;
+  const entries = Array.isArray(state.gym.weightLog) ? state.gym.weightLog : [];
+  if (!entries.length) {
+    log.innerHTML = '<div class="weight-log-empty">No weigh-ins logged yet. Save a current weight above to start your log.</div>';
+    return;
+  }
+  const ordered = [...entries].slice().reverse(); // newest first
+  log.innerHTML = ordered.map((entry, i) => {
+    const originalIndex = entries.length - 1 - i;
+    const prev = entries[originalIndex - 1];
+    let deltaHtml = '';
+    if (prev) {
+      const diff = parseFloat(entry.weight) - parseFloat(prev.weight);
+      if (!Number.isNaN(diff) && diff !== 0) {
+        const cls = diff < 0 ? 'down' : 'up';
+        const arrow = diff < 0 ? '&darr;' : '&uarr;';
+        deltaHtml = `<span class="wl-delta ${cls}">${arrow} ${Math.abs(diff).toFixed(1)}kg</span>`;
+      }
+    } else {
+      deltaHtml = '<span class="wl-delta">Start</span>';
+    }
+    return `
+      <div class="weight-log-item">
+        <div><strong>${entry.weight} kg</strong> <span class="wl-date">&middot; ${entry.date}</span></div>
+        ${deltaHtml}
+      </div>`;
+  }).join('');
+}
+
+function editPr(index) {
+  const prs = normalizeGymPrs(state.gym.prs || []);
+  const entry = prs[index];
+  if (!entry) return;
+
+  const newWeight = window.prompt('Weight (kg):', entry.weight);
+  if (newWeight === null) return;
+  const newReps = window.prompt('Reps:', entry.reps);
+  if (newReps === null) return;
+  const newDate = window.prompt('Date (e.g. Jul 5, 2026):', entry.date);
+  if (newDate === null) return;
+
+  prs[index] = { ...entry, weight: newWeight, reps: newReps, date: newDate || entry.date };
+  state.gym.prs = prs;
+  renderGym();
+  saveGymData();
+}
+
+function deletePr(index) {
+  const prs = normalizeGymPrs(state.gym.prs || []);
+  prs.splice(index, 1);
+  state.gym.prs = prs;
+  renderGym();
+  saveGymData();
 }
 
 function renderGerman() {
@@ -400,6 +484,84 @@ function renderGerman() {
   const progress = LEVELS[state.english.germanLevel] || 0;
   if (germanProgress) germanProgress.style.width = `${progress}%`;
   if (germanProgressText) germanProgressText.textContent = `${progress}%`;
+}
+
+function renderThenNow() {
+  const el = $('tvnNowText');
+  if (!el) return;
+  const level = state.english.level || 'A1';
+  const engStreak = state.streaks.english || 0;
+  const gymStreak = state.streaks.gym || 0;
+  const weight = state.gym.currentWeight;
+  const parts = [`English at <strong>${level}</strong>`];
+  if (engStreak > 0 || gymStreak > 0) {
+    parts.push(`a <strong>${Math.max(engStreak, gymStreak)}</strong> day streak`);
+  }
+  if (weight) {
+    parts.push(`training logged at <strong>${weight}kg</strong>`);
+  }
+  parts.push('a plan, and a door still open to Germany.');
+  el.innerHTML = parts.join(', ');
+}
+
+function renderHoursInvested() {
+  const engHours = Number(state.english.hours) || 0;
+  const gymHours = Number(state.gym.hours) || 0;
+  const englishHoursInput = $('englishHoursInput');
+  const gymHoursInput = $('gymHoursInput');
+  if (englishHoursInput && document.activeElement !== englishHoursInput) {
+    englishHoursInput.value = state.english.hours || '';
+  }
+  if (gymHoursInput && document.activeElement !== gymHoursInput) {
+    gymHoursInput.value = state.gym.hours || '';
+  }
+  const englishHoursTotal = $('englishHoursTotal');
+  const gymHoursTotal = $('gymHoursTotal');
+  const combinedHoursTotal = $('combinedHoursTotal');
+  if (englishHoursTotal) englishHoursTotal.textContent = engHours;
+  if (gymHoursTotal) gymHoursTotal.textContent = gymHours;
+  if (combinedHoursTotal) combinedHoursTotal.textContent = engHours + gymHours;
+}
+
+function getWeekKey(date) {
+  const d = new Date(date);
+  const day = (d.getDay() + 6) % 7; // Monday = 0
+  d.setDate(d.getDate() - day);
+  return d.toISOString().split('T')[0];
+}
+
+function renderProgressChart() {
+  const container = $('progressChart');
+  if (!container) return;
+  const checkins = state.streaks.checkins || {};
+  const weeks = [];
+  const now = new Date();
+  for (let i = 7; i >= 0; i -= 1) {
+    const weekStart = new Date(now);
+    weekStart.setDate(weekStart.getDate() - (i * 7));
+    weeks.push(getWeekKey(weekStart));
+  }
+  const counts = weeks.map((weekStart) => {
+    const start = new Date(weekStart);
+    let count = 0;
+    for (let d = 0; d < 7; d += 1) {
+      const day = new Date(start);
+      day.setDate(day.getDate() + d);
+      const key = day.toISOString().split('T')[0];
+      const data = checkins[key];
+      if (data && (data.english || data.gym)) count += 1;
+    }
+    return count;
+  });
+  container.innerHTML = counts.map((count, i) => {
+    const pct = Math.max(4, (count / 7) * 100);
+    const label = i === counts.length - 1 ? 'Now' : `W${i + 1}`;
+    return `
+      <div class="chart-col">
+        <div class="chart-bar" style="height:${pct}%"></div>
+        <div class="chart-bar-label">${label}</div>
+      </div>`;
+  }).join('');
 }
 
 function renderStreaks() {
@@ -426,13 +588,30 @@ function renderStreaks() {
   if (studyStreak) studyStreak.textContent = engStreak;
   if (gymStreakEl) gymStreakEl.textContent = gymStreak;
 
+  renderCalendar();
+}
+
+function getEarliestCheckinMonth() {
+  const checkins = state.streaks.checkins || {};
+  const dates = Object.keys(checkins).sort();
+  if (!dates.length) return null;
+  const [year, month] = dates[0].split('-').map(Number);
+  return { year, month: month - 1 };
+}
+
+function renderCalendar() {
   const grid = $('calendarGrid');
+  const label = $('calendarMonthLabel');
+  const prevButton = $('calendarPrevButton');
+  const nextButton = $('calendarNextButton');
   if (!grid) return;
-  grid.innerHTML = '';
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
+
+  const checkins = state.streaks.checkins || {};
+  const year = calendarViewYear;
+  const month = calendarViewMonth;
   const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  grid.innerHTML = '';
   for (let d = 1; d <= daysInMonth; d += 1) {
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
     const dayData = checkins[dateStr] || {};
@@ -444,6 +623,37 @@ function renderStreaks() {
     else if (dayData.gym) cell.classList.add('gym');
     grid.appendChild(cell);
   }
+
+  if (label) {
+    const monthName = new Date(year, month, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    label.textContent = monthName;
+  }
+
+  const now = new Date();
+  const isCurrentMonth = year === now.getFullYear() && month === now.getMonth();
+  if (nextButton) nextButton.disabled = isCurrentMonth;
+
+  const earliest = getEarliestCheckinMonth();
+  if (prevButton) {
+    if (earliest) {
+      const atEarliest = year < earliest.year || (year === earliest.year && month <= earliest.month);
+      prevButton.disabled = atEarliest;
+    } else {
+      prevButton.disabled = false;
+    }
+  }
+}
+
+function changeCalendarMonth(delta) {
+  calendarViewMonth += delta;
+  if (calendarViewMonth > 11) {
+    calendarViewMonth = 0;
+    calendarViewYear += 1;
+  } else if (calendarViewMonth < 0) {
+    calendarViewMonth = 11;
+    calendarViewYear -= 1;
+  }
+  renderCalendar();
 }
 
 function evaluateCheckin() {
@@ -483,6 +693,8 @@ function updateStreaks() {
     }
   }
   renderStreaks();
+  renderProgressChart();
+  renderThenNow();
 }
 
 function saveEnglishData() {
@@ -550,6 +762,8 @@ function bindRealtime() {
       state.english = mergeData(defaultEnglish, data);
       renderEnglish();
       renderGerman();
+      renderThenNow();
+      renderHoursInvested();
     }, (error) => {
       console.error(error);
       showBanner('Live sync paused. Refresh or check your connection.', 'error');
@@ -557,7 +771,10 @@ function bindRealtime() {
     subscribeToDocument('gym', defaultGym, (data) => {
       state.gym = { ...defaultGym, ...(data || {}) };
       state.gym.prs = normalizeGymPrs(state.gym.prs);
+      state.gym.weightLog = Array.isArray(state.gym.weightLog) ? state.gym.weightLog : [];
       renderGym();
+      renderThenNow();
+      renderHoursInvested();
     }, (error) => {
       console.error(error);
       showBanner('Live sync paused. Refresh or check your connection.', 'error');
@@ -567,6 +784,8 @@ function bindRealtime() {
       renderStreaks();
       evaluateCheckin();
       updateStreaks();
+      renderThenNow();
+      renderProgressChart();
     }, (error) => {
       console.error(error);
       showBanner('Live sync paused. Refresh or check your connection.', 'error');
@@ -600,6 +819,7 @@ async function loadAllData() {
     state.english = mergeData(defaultEnglish, english);
     state.gym = { ...defaultGym, ...(gym || {}) };
     state.gym.prs = normalizeGymPrs(state.gym.prs);
+    state.gym.weightLog = Array.isArray(state.gym.weightLog) ? state.gym.weightLog : [];
     state.streaks = mergeData(defaultStreaks, streaks);
 
     renderAll();
@@ -622,6 +842,9 @@ function renderAll() {
   renderGerman();
   renderStreaks();
   evaluateCheckin();
+  renderThenNow();
+  renderHoursInvested();
+  renderProgressChart();
 }
 
 function handleUnlock(event) {
@@ -720,8 +943,76 @@ function attachEvents() {
       state.gym.startWeight = $('startWeight') ? $('startWeight').value : '';
       state.gym.goalWeight = $('goalWeight') ? $('goalWeight').value : '';
       state.gym.currentWeight = $('currentWeight') ? $('currentWeight').value : '';
+
+      const log = Array.isArray(state.gym.weightLog) ? state.gym.weightLog : [];
+      const last = log[log.length - 1];
+      const newWeight = state.gym.currentWeight;
+      if (newWeight && (!last || String(last.weight) !== String(newWeight))) {
+        state.gym.weightLog = [
+          ...log,
+          {
+            weight: newWeight,
+            date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+          }
+        ];
+      }
+
       renderGym();
+      renderThenNow();
       saveGymData();
+    });
+  }
+
+  const saveEnglishHoursButton = $('saveEnglishHoursButton');
+  if (saveEnglishHoursButton) {
+    saveEnglishHoursButton.addEventListener('click', () => {
+      const input = $('englishHoursInput');
+      state.english.hours = input ? input.value : 0;
+      renderHoursInvested();
+      saveEnglishData();
+    });
+  }
+
+  const saveGymHoursButton = $('saveGymHoursButton');
+  if (saveGymHoursButton) {
+    saveGymHoursButton.addEventListener('click', () => {
+      const input = $('gymHoursInput');
+      state.gym.hours = input ? input.value : 0;
+      renderHoursInvested();
+      saveGymData();
+    });
+  }
+
+  const tvnSlider = $('tvnSlider');
+  if (tvnSlider) {
+    const tvnNowPanel = $('tvnNowPanel');
+    const tvnDivider = $('tvnDivider');
+    tvnSlider.addEventListener('input', () => {
+      const v = tvnSlider.value;
+      if (tvnNowPanel) tvnNowPanel.style.clipPath = `inset(0 0 0 ${v}%)`;
+      if (tvnDivider) tvnDivider.style.left = `${v}%`;
+    });
+  }
+
+  const calendarPrevButton = $('calendarPrevButton');
+  const calendarNextButton = $('calendarNextButton');
+  if (calendarPrevButton) {
+    calendarPrevButton.addEventListener('click', () => changeCalendarMonth(-1));
+  }
+  if (calendarNextButton) {
+    calendarNextButton.addEventListener('click', () => changeCalendarMonth(1));
+  }
+
+  const prLog = $('prLog');
+  if (prLog) {
+    prLog.addEventListener('click', (event) => {
+      const editButton = event.target.closest('[data-pr-edit]');
+      const deleteButton = event.target.closest('[data-pr-delete]');
+      if (editButton) {
+        editPr(Number(editButton.getAttribute('data-pr-edit')));
+      } else if (deleteButton) {
+        deletePr(Number(deleteButton.getAttribute('data-pr-delete')));
+      }
     });
   }
 
