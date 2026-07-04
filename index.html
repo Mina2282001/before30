@@ -1314,11 +1314,266 @@
                 max-width: 1400px;
             }
         }
+
+        /* ===== THEN VS NOW ===== */
+        .then-now-wrap {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+            height: 260px;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .tvn-panel {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .tvn-then {
+            background: linear-gradient(160deg, #1a1210, #0a0a0a);
+        }
+
+        .tvn-now {
+            background: linear-gradient(160deg, #14140f, #0a0a0a);
+            clip-path: inset(0 0 0 50%);
+        }
+
+        .tvn-label {
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+
+        .tvn-then .tvn-label {
+            color: #a35b4d;
+        }
+
+        .tvn-now .tvn-label {
+            color: var(--accent);
+        }
+
+        .tvn-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1rem, 3vw, 1.2rem);
+            font-style: italic;
+            color: var(--text-dim);
+            max-width: 320px;
+            line-height: 1.7;
+        }
+
+        .tvn-now .tvn-text strong {
+            color: var(--accent);
+            font-style: normal;
+        }
+
+        .tvn-divider {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 2px;
+            background: var(--accent);
+            transform: translateX(-1px);
+            box-shadow: 0 0 12px var(--accent-glow);
+            pointer-events: none;
+        }
+
+        .tvn-slider {
+            display: block;
+            width: 100%;
+            max-width: 800px;
+            margin: 18px auto 0;
+            accent-color: var(--accent-dim);
+        }
+
+        /* ===== HOURS INVESTED ===== */
+        .hours-section {
+            text-align: center;
+        }
+
+        .hours-grid {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .hours-block {
+            text-align: center;
+        }
+
+        .hours-number {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 6vw, 3rem);
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .hours-caption {
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        .hours-total-block .hours-number {
+            font-size: clamp(2.8rem, 9vw, 4.5rem);
+            text-shadow: 0 0 30px var(--accent-glow);
+        }
+
+        /* ===== PROGRESS CHART ===== */
+        .chart-wrap {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            height: 140px;
+            margin-top: 20px;
+            padding: 0 4px;
+        }
+
+        .chart-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            height: 100%;
+            gap: 6px;
+        }
+
+        .chart-bar {
+            width: 100%;
+            max-width: 30px;
+            background: linear-gradient(180deg, var(--accent), var(--accent-dim));
+            border-radius: 3px 3px 0 0;
+            transition: height 0.6s ease;
+            min-height: 2px;
+        }
+
+        .chart-bar-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+
+        /* ===== WEIGHT LOG ===== */
+        .weight-log {
+            margin-top: 16px;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+
+        .weight-log-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-elevated);
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+        }
+
+        .weight-log-item .wl-date {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        .weight-log-item .wl-delta.down {
+            color: var(--success);
+        }
+
+        .weight-log-item .wl-delta.up {
+            color: var(--danger);
+        }
+
+        .weight-log-empty {
+            color: var(--text-muted);
+            font-style: italic;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.95rem;
+            padding: 10px 0;
+        }
+
+        /* ===== EDITABLE PR LOG ===== */
+        .pr-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 6px;
+        }
+
+        .pr-actions button {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .pr-actions button:hover {
+            color: var(--accent);
+        }
+
+        .pr-actions button.pr-delete:hover {
+            color: var(--danger);
+        }
+
+        /* ===== CALENDAR NAV ===== */
+        .calendar-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            margin-top: 20px;
+        }
+
+        .calendar-nav-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-dim);
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .calendar-nav-btn:hover:not(:disabled) {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .calendar-nav-btn:disabled {
+            opacity: 0.25;
+            cursor: not-allowed;
+        }
+
+        .calendar-month-label {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.05rem;
+            color: var(--text);
+            min-width: 140px;
+            text-align: center;
+        }
     </style>
 </head>
 
 <body>
-    <audio id="backgroundMusic" preload="auto" autoplay loop playsinline style="display:none;">
+    <audio id="backgroundMusic" preload="auto" loop playsinline style="display:none;">
         <source src="ludovico-einaudi-experience-official-visualizer_de7rz0LW.mp3" type="audio/mpeg">
     </audio>
 
@@ -1364,8 +1619,7 @@
                 <div class="age-display" id="ageDisplay">Calculating...</div>
             </div>
             <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
-                <a href="#story" class="hero-cta">Read My Story</a>
-                <button type="button" id="focusButton" class="hero-cta" data-title="FOCUS">Enter Focus Mode</button>
+                <button type="button" id="musicButton" class="hero-cta">Play Music</button>
             </div>
         </section>
 
@@ -1444,6 +1698,22 @@
                 <img src="a qout 408-529.png" alt="Move in silence"
                     style="display:block;margin:0 auto;max-width:100%;height:auto;opacity:0.9;max-width:320px;width:90%;">
             </div>
+        </section>
+
+        <section id="thenNow">
+            <h2 class="section-title">Then <span>vs</span> Now</h2>
+            <div class="then-now-wrap">
+                <div class="tvn-panel tvn-then">
+                    <div class="tvn-label">Then</div>
+                    <div class="tvn-text">Five hours of sleep. Night shifts. A mask you wore all day so nobody would ask if you were okay.</div>
+                </div>
+                <div class="tvn-panel tvn-now" id="tvnNowPanel">
+                    <div class="tvn-label">Now</div>
+                    <div class="tvn-text" id="tvnNowText">Loading your progress...</div>
+                </div>
+                <div class="tvn-divider" id="tvnDivider"></div>
+            </div>
+            <input type="range" class="tvn-slider" id="tvnSlider" min="0" max="100" value="50" aria-label="Slide to compare then and now">
         </section>
 
         <section style="text-align:center;padding:30px 20px 10px;">
@@ -1534,6 +1804,14 @@
                     </div>
 
                     <div class="tracker-section">
+                        <div class="tracker-label">Hours Studied</div>
+                        <div class="input-group">
+                            <input type="number" id="englishHoursInput" placeholder="Total hours">
+                            <button class="btn-small" id="saveEnglishHoursButton">Save</button>
+                        </div>
+                    </div>
+
+                    <div class="tracker-section">
                         <div class="tracker-label">Resources</div>
                         <div class="input-group">
                             <input type="text" id="resourceInput" placeholder="Add resource (Duolingo, Anki, etc.)">
@@ -1590,6 +1868,20 @@
                             </div>
                             <div class="progress-text" id="weightProgressText">0%</div>
                         </div>
+                        <div style="margin-top: 20px;">
+                            <div class="tracker-label">Weight Log</div>
+                            <div class="weight-log" id="weightLog">
+                                <div class="weight-log-empty">No weigh-ins logged yet. Save a current weight above to start your log.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tracker-section">
+                        <div class="tracker-label">Hours Trained</div>
+                        <div class="input-group">
+                            <input type="number" id="gymHoursInput" placeholder="Total hours">
+                            <button class="btn-small" id="saveGymHoursButton">Save</button>
+                        </div>
                     </div>
 
                     <div class="tracker-section">
@@ -1623,6 +1915,24 @@
 
 
                 </div>
+            </div>
+        </section>
+
+        <section class="hours-section">
+            <h2 class="section-title">Time <span>Invested</span></h2>
+            <div class="hours-grid">
+                <div class="hours-block">
+                    <div class="hours-number" id="englishHoursTotal">0</div>
+                    <div class="hours-caption">Hours studying</div>
+                </div>
+                <div class="hours-block">
+                    <div class="hours-number" id="gymHoursTotal">0</div>
+                    <div class="hours-caption">Hours training</div>
+                </div>
+            </div>
+            <div class="hours-block hours-total-block" style="margin-top:40px;">
+                <div class="hours-number" id="combinedHoursTotal">0</div>
+                <div class="hours-caption">Total hours invested in yourself</div>
             </div>
         </section>
 
@@ -1690,10 +2000,7 @@
         </section>
 
         <section class="countdown-section">
-            <div style="text-align:center;margin-bottom:35px;">
-                <img src="a qout 361-549.png" alt="Life is a game"
-                    style="display:block;margin:0 auto;max-width:100%;height:auto;opacity:0.9;max-width:360px;width:90%;">
-            </div>
+           
             <h2 class="section-title">The <span>Clock</span></h2>
             <div class="countdown-label">Days until 30th birthday</div>
             <div class="countdown-display" id="countdownDisplay">---</div>
@@ -1744,9 +2051,23 @@
                 <div class="checkin-result" id="checkinResult"></div>
 
                 <div style="margin-top: 40px;">
-                    <div class="tracker-label">This Month's Calendar</div>
+                    <div class="tracker-label">Calendar</div>
+                    <div class="calendar-nav">
+                        <button class="calendar-nav-btn" id="calendarPrevButton" aria-label="Previous month">&larr;</button>
+                        <div class="calendar-month-label" id="calendarMonthLabel">--</div>
+                        <button class="calendar-nav-btn" id="calendarNextButton" aria-label="Next month">&rarr;</button>
+                    </div>
                     <div class="calendar-grid" id="calendarGrid"></div>
                 </div>
+
+                <div style="margin-top: 50px;">
+                    <div class="tracker-label">Progress Chart &middot; Last 8 Weeks</div>
+                    <div class="chart-wrap" id="progressChart"></div>
+                </div>
+                 <div style="text-align:center;margin-bottom:35px;">
+                <img src="a qout 361-549.png" alt="Life is a game"
+                    style="display:block;margin:0 auto;max-width:100%;height:auto;opacity:0.9;max-width:360px;width:90%;">
+            </div>
             </div>
         </section>
 
@@ -1760,20 +2081,28 @@
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 const audio = document.getElementById('backgroundMusic');
-                if (!audio) return;
+                const musicButton = document.getElementById('musicButton');
+                if (!audio || !musicButton) return;
 
-                const startPlayback = () => {
-                    audio.volume = 0.2;
-                    audio.muted = false;
-                    const playPromise = audio.play();
-                    if (playPromise && typeof playPromise.catch === 'function') {
-                        playPromise.catch(() => {});
+                audio.volume = 0.2;
+
+                musicButton.addEventListener('click', () => {
+                    if (audio.paused) {
+                        const playPromise = audio.play();
+                        if (playPromise && typeof playPromise.catch === 'function') {
+                            playPromise.catch(() => {});
+                        }
+                    } else {
+                        audio.pause();
                     }
-                };
+                });
 
-                startPlayback();
-                document.addEventListener('pointerdown', startPlayback, { once: true });
-                document.addEventListener('keydown', startPlayback, { once: true });
+                audio.addEventListener('play', () => {
+                    musicButton.textContent = 'Pause Music';
+                });
+                audio.addEventListener('pause', () => {
+                    musicButton.textContent = 'Play Music';
+                });
             });
         </script>
     </main>
