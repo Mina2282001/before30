@@ -23,8 +23,7 @@ const LEVELS = {
 const defaultEnglish = {
   level: 'A1',
   resources: [],
-  notes: [],
-  hours: 0
+  notes: []
 };
 
 const defaultGym = {
@@ -32,13 +31,11 @@ const defaultGym = {
   goalWeight: '',
   currentWeight: '',
   prs: [],
-  hours: 0,
   weightLog: []
 };
 
 const defaultStreaks = {
-  english: 0,
-  gym: 0,
+  best: { english: 0, gym: 0 },
   checkins: {}
 };
 
@@ -68,6 +65,81 @@ function mergeData(defaultValue, incoming) {
     return { ...defaultValue, ...(incoming || {}) };
   }
   return incoming ?? defaultValue;
+}
+
+function dateKey(date) {
+  return date.toISOString().split('T')[0];
+}
+
+function todayKey() {
+  return dateKey(new Date());
+}
+
+function formatMinutes(totalMinutes) {
+  const minutes = Math.max(0, Math.round(Number(totalMinutes) || 0));
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  if (h === 0) return `${m}m`;
+  if (m === 0) return `${h}h`;
+  return `${h}h ${m}m`;
+}
+
+// A day counts as "completed" for a habit if it has a positive minute value,
+// or (for older check-ins recorded before minutes were tracked) a plain `true`.
+// A stored 0 means the day was explicitly marked as missed (NO), which is different
+// from a day that simply has no entry yet.
+function isCompleted(value) {
+  return (typeof value === 'number' && value > 0) || value === true;
+}
+
+function getHabitStats(habit) {
+  const checkins = state.streaks.checkins || {};
+  let totalDays = 0;
+  let totalMinutes = 0;
+  Object.keys(checkins).forEach((date) => {
+    const value = checkins[date] ? checkins[date][habit] : undefined;
+    if (isCompleted(value)) {
+      totalDays += 1;
+      if (typeof value === 'number') {
+        totalMinutes += value;
+      }
+    }
+  });
+  return { totalDays, totalMinutes };
+}
+
+function calcCurrentStreak(habit) {
+  const checkins = state.streaks.checkins || {};
+  const cursor = new Date();
+  const todaysValue = checkins[todayKey()] ? checkins[todayKey()][habit] : undefined;
+
+  // An explicit "NO" today is a real miss - streak is broken right away.
+  if (todaysValue === 0) return 0;
+
+  // Today just hasn't been logged yet - don't punish it until the day is over.
+  // Start counting from yesterday instead.
+  if (!isCompleted(todaysValue)) {
+    cursor.setDate(cursor.getDate() - 1);
+  }
+
+  let streak = 0;
+  for (;;) {
+    const value = checkins[dateKey(cursor)] ? checkins[dateKey(cursor)][habit] : undefined;
+    if (!isCompleted(value)) break;
+    streak += 1;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  return streak;
+}
+
+function refreshBestStreaks() {
+  ['english', 'gym'].forEach((habit) => {
+    const current = calcCurrentStreak(habit);
+    const best = (state.streaks.best && state.streaks.best[habit]) || 0;
+    if (current > best) {
+      state.streaks.best = { ...state.streaks.best, [habit]: current };
+    }
+  });
 }
 
 function normalizeGymPrs(prs) {
@@ -224,8 +296,6 @@ const quotes = [
   'I was never given a clear road. So I became someone who keeps walking anyway.',
   'You don’t always get to choose the load, but you can choose how to carry it.',
   'You remain dead for eternity, but you are alive for only a brief moment.',
-  'If you only do what you can do, you will never be more than who you are now.',
-  'The person I want to become lives beyond the things I am comfortable doing today.',
 ];
 
 let currentQuote = 0;
@@ -260,10 +330,6 @@ function renderEnglish() {
   const englishLevel = $('englishLevel');
   if (englishLevel) {
     englishLevel.value = state.english.level || 'A1';
-  }
-  const englishHoursInput = $('englishHoursInput');
-  if (englishHoursInput && document.activeElement !== englishHoursInput) {
-    englishHoursInput.value = state.english.hours || '';
   }
   const progress = LEVELS[state.english.level] || 0;
   const progressBar = $('englishProgress');
@@ -409,11 +475,6 @@ function renderGym() {
       : '<div class="notes-empty">No personal records yet.</div>';
   }
 
-  const hoursInput = $('gymHoursInput');
-  if (hoursInput && document.activeElement !== hoursInput) {
-    hoursInput.value = state.gym.hours || '';
-  }
-
   renderWeightLog();
 }
 
@@ -490,8 +551,8 @@ function renderThenNow() {
   const el = $('tvnNowText');
   if (!el) return;
   const level = state.english.level || 'A1';
-  const engStreak = state.streaks.english || 0;
-  const gymStreak = state.streaks.gym || 0;
+  const engStreak = calcCurrentStreak('english');
+  const gymStreak = calcCurrentStreak('gym');
   const weight = state.gym.currentWeight;
   const parts = [`English at <strong>${level}</strong>`];
   if (engStreak > 0 || gymStreak > 0) {
@@ -504,23 +565,45 @@ function renderThenNow() {
   el.innerHTML = parts.join(', ');
 }
 
+function renderStreakDetails() {
+  const engCurrent = calcCurrentStreak('english');
+  const gymCurrent = calcCurrentStreak('gym');
+  const engStats = getHabitStats('english');
+  const gymStats = getHabitStats('gym');
+  const engBest = (state.streaks.best && state.streaks.best.english) || 0;
+  const gymBest = (state.streaks.best && state.streaks.best.gym) || 0;
+
+  const studyStreak = $('studyStreak');
+  if (studyStreak) studyStreak.textContent = engCurrent;
+  const gymStreakEl = $('gymStreak');
+  if (gymStreakEl) gymStreakEl.textContent = gymCurrent;
+
+  const studyBest = $('studyBestStreak');
+  if (studyBest) studyBest.textContent = `🏆 Best streak: ${engBest} day${engBest === 1 ? '' : 's'}`;
+  const gymBestEl = $('gymBestStreak');
+  if (gymBestEl) gymBestEl.textContent = `🏆 Best streak: ${gymBest} day${gymBest === 1 ? '' : 's'}`;
+
+  const studyTotalDays = $('studyTotalDays');
+  if (studyTotalDays) studyTotalDays.textContent = `📅 Total days completed: ${engStats.totalDays}`;
+  const gymTotalDays = $('gymTotalDays');
+  if (gymTotalDays) gymTotalDays.textContent = `📅 Total days completed: ${gymStats.totalDays}`;
+
+  const englishTimeInvested = $('englishTimeInvested');
+  if (englishTimeInvested) englishTimeInvested.textContent = `⏳ ${formatMinutes(engStats.totalMinutes)}`;
+  const gymTimeInvested = $('gymTimeInvested');
+  if (gymTimeInvested) gymTimeInvested.textContent = `⏳ ${formatMinutes(gymStats.totalMinutes)}`;
+
+  return { engStats, gymStats };
+}
+
 function renderHoursInvested() {
-  const engHours = Number(state.english.hours) || 0;
-  const gymHours = Number(state.gym.hours) || 0;
-  const englishHoursInput = $('englishHoursInput');
-  const gymHoursInput = $('gymHoursInput');
-  if (englishHoursInput && document.activeElement !== englishHoursInput) {
-    englishHoursInput.value = state.english.hours || '';
-  }
-  if (gymHoursInput && document.activeElement !== gymHoursInput) {
-    gymHoursInput.value = state.gym.hours || '';
-  }
+  const { engStats, gymStats } = renderStreakDetails();
   const englishHoursTotal = $('englishHoursTotal');
   const gymHoursTotal = $('gymHoursTotal');
   const combinedHoursTotal = $('combinedHoursTotal');
-  if (englishHoursTotal) englishHoursTotal.textContent = engHours;
-  if (gymHoursTotal) gymHoursTotal.textContent = gymHours;
-  if (combinedHoursTotal) combinedHoursTotal.textContent = engHours + gymHours;
+  if (englishHoursTotal) englishHoursTotal.textContent = formatMinutes(engStats.totalMinutes);
+  if (gymHoursTotal) gymHoursTotal.textContent = formatMinutes(gymStats.totalMinutes);
+  if (combinedHoursTotal) combinedHoursTotal.textContent = formatMinutes(engStats.totalMinutes + gymStats.totalMinutes);
 }
 
 function getWeekKey(date) {
@@ -565,29 +648,7 @@ function renderProgressChart() {
 }
 
 function renderStreaks() {
-  const checkins = state.streaks.checkins || {};
-  const dates = Object.keys(checkins).sort();
-  let engStreak = 0;
-  let gymStreak = 0;
-  for (let i = dates.length - 1; i >= 0; i -= 1) {
-    if (checkins[dates[i]].english) {
-      engStreak += 1;
-    } else {
-      break;
-    }
-  }
-  for (let i = dates.length - 1; i >= 0; i -= 1) {
-    if (checkins[dates[i]].gym) {
-      gymStreak += 1;
-    } else {
-      break;
-    }
-  }
-  const studyStreak = $('studyStreak');
-  const gymStreakEl = $('gymStreak');
-  if (studyStreak) studyStreak.textContent = engStreak;
-  if (gymStreakEl) gymStreakEl.textContent = gymStreak;
-
+  renderStreakDetails();
   renderCalendar();
 }
 
@@ -657,14 +718,13 @@ function changeCalendarMonth(delta) {
 }
 
 function evaluateCheckin() {
-  const today = new Date().toISOString().split('T')[0];
-  const todayData = (state.streaks.checkins || {})[today] || {};
+  const todayData = (state.streaks.checkins || {})[todayKey()] || {};
   const result = $('checkinResult');
   if (!result) return;
-  if (todayData.english === true && todayData.gym === true) {
+  if (isCompleted(todayData.english) && isCompleted(todayData.gym)) {
     result.className = 'checkin-result success';
     result.innerHTML = '<strong>🔥 Both done today.</strong><br>Your old self would be proud.';
-  } else if (todayData.english === false || todayData.gym === false) {
+  } else if (todayData.english === 0 || todayData.gym === 0) {
     result.className = 'checkin-result fail';
     result.innerHTML = '<strong>Not today.</strong><br>One small action still counts.';
   } else {
@@ -674,24 +734,6 @@ function evaluateCheckin() {
 }
 
 function updateStreaks() {
-  state.streaks.english = 0;
-  state.streaks.gym = 0;
-  const checkins = state.streaks.checkins || {};
-  const dates = Object.keys(checkins).sort();
-  for (let i = dates.length - 1; i >= 0; i -= 1) {
-    if (checkins[dates[i]].english) {
-      state.streaks.english += 1;
-    } else {
-      break;
-    }
-  }
-  for (let i = dates.length - 1; i >= 0; i -= 1) {
-    if (checkins[dates[i]].gym) {
-      state.streaks.gym += 1;
-    } else {
-      break;
-    }
-  }
   renderStreaks();
   renderProgressChart();
   renderThenNow();
@@ -821,6 +863,7 @@ async function loadAllData() {
     state.gym.prs = normalizeGymPrs(state.gym.prs);
     state.gym.weightLog = Array.isArray(state.gym.weightLog) ? state.gym.weightLog : [];
     state.streaks = mergeData(defaultStreaks, streaks);
+    refreshBestStreaks();
 
     renderAll();
     bindRealtime();
@@ -1037,23 +1080,100 @@ function attachEvents() {
     });
   }
 
-  document.querySelectorAll('.checkin-btn').forEach((button) => {
-    button.addEventListener('click', () => {
-      const type = button.id.includes('eng') ? 'english' : 'gym';
-      const done = button.classList.contains('yes');
-      const today = new Date().toISOString().split('T')[0];
-      const nextCheckins = { ...(state.streaks.checkins || {}) };
-      nextCheckins[today] = { ...(nextCheckins[today] || {}), [type]: done };
-      state.streaks.checkins = nextCheckins;
-      $('engYes').classList.toggle('active', (nextCheckins[today].english || false));
-      $('engNo').classList.toggle('active', nextCheckins[today].english === false);
-      $('gymYes').classList.toggle('active', (nextCheckins[today].gym || false));
-      $('gymNo').classList.toggle('active', nextCheckins[today].gym === false);
-      updateStreaks();
-      evaluateCheckin();
+  function refreshCheckinButtonStates() {
+    const todayData = (state.streaks.checkins || {})[todayKey()] || {};
+    const engYes = $('engYes');
+    const engNo = $('engNo');
+    const gymYes = $('gymYes');
+    const gymNo = $('gymNo');
+    if (engYes) engYes.classList.toggle('active', isCompleted(todayData.english));
+    if (engNo) engNo.classList.toggle('active', todayData.english === 0);
+    if (gymYes) gymYes.classList.toggle('active', isCompleted(todayData.gym));
+    if (gymNo) gymNo.classList.toggle('active', todayData.gym === 0);
+  }
+
+  function commitCheckin(habit, minutes) {
+    const key = todayKey();
+    const nextCheckins = { ...(state.streaks.checkins || {}) };
+    nextCheckins[key] = { ...(nextCheckins[key] || {}), [habit]: minutes };
+    state.streaks.checkins = nextCheckins;
+    refreshBestStreaks();
+    refreshCheckinButtonStates();
+    updateStreaks();
+    evaluateCheckin();
+    saveStreaksData();
+  }
+
+  function handleYesClick(habit) {
+    const label = habit === 'english' ? 'study' : 'train';
+    const todayData = (state.streaks.checkins || {})[todayKey()] || {};
+    const existing = todayData[habit];
+
+    if (isCompleted(existing)) {
+      const wantsUpdate = window.confirm(
+        `You already completed this habit today.\nWould you like to update today's minutes? (Currently ${existing} min)`
+      );
+      if (!wantsUpdate) return;
+      const raw = window.prompt(`Update today's ${label} minutes:`, String(existing));
+      if (raw === null) return;
+      const minutes = Number(raw);
+      if (!Number.isFinite(minutes) || minutes <= 0) {
+        showBanner('Please enter a valid number of minutes.', 'error');
+        return;
+      }
+      // Editing an already-completed day only replaces the minutes -
+      // it does not increase Total Days or the streak.
+      commitCheckin(habit, Math.round(minutes));
+      showBanner("Today's minutes updated.", 'success');
+      window.setTimeout(clearBanner, 1200);
+      return;
+    }
+
+    const raw = window.prompt(`How many minutes did you ${label === 'study' ? 'study English' : 'train'} today?`);
+    if (raw === null) return;
+    const minutes = Number(raw);
+    if (!Number.isFinite(minutes) || minutes <= 0) {
+      showBanner('Please enter a valid number of minutes.', 'error');
+      return;
+    }
+    commitCheckin(habit, Math.round(minutes));
+  }
+
+  function handleNoClick(habit) {
+    commitCheckin(habit, 0);
+  }
+
+  const engYesButton = $('engYes');
+  const engNoButton = $('engNo');
+  const gymYesButton = $('gymYes');
+  const gymNoButton = $('gymNo');
+  if (engYesButton) engYesButton.addEventListener('click', () => handleYesClick('english'));
+  if (engNoButton) engNoButton.addEventListener('click', () => handleNoClick('english'));
+  if (gymYesButton) gymYesButton.addEventListener('click', () => handleYesClick('gym'));
+  if (gymNoButton) gymNoButton.addEventListener('click', () => handleNoClick('gym'));
+  refreshCheckinButtonStates();
+
+  const resetEnglishBestButton = $('resetEnglishBestButton');
+  if (resetEnglishBestButton) {
+    resetEnglishBestButton.addEventListener('click', () => {
+      const sure = window.confirm('Reset your English best streak record? This cannot be undone.');
+      if (!sure) return;
+      state.streaks.best = { ...state.streaks.best, english: 0 };
+      renderStreaks();
       saveStreaksData();
     });
-  });
+  }
+
+  const resetGymBestButton = $('resetGymBestButton');
+  if (resetGymBestButton) {
+    resetGymBestButton.addEventListener('click', () => {
+      const sure = window.confirm('Reset your Gym best streak record? This cannot be undone.');
+      if (!sure) return;
+      state.streaks.best = { ...state.streaks.best, gym: 0 };
+      renderStreaks();
+      saveStreaksData();
+    });
+  }
 
   const revealButton = $('revealButton');
   if (revealButton) {
