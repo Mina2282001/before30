@@ -587,7 +587,7 @@
         .progress-text {
             font-size: 0.85rem;
             color: var(--text-dim);
-            text-align: right;
+            
         }
 
         .input-group {
@@ -1801,16 +1801,11 @@
                             <span class="streak-display" id="studyStreak">0</span>
                             <span class="streak-label"> days studying streak🔥</span>
                         </div>
+                        <div class="progress-text" id="studyBestStreak">🏆 Best streak: 0 days</div>
+                        <div class="progress-text" id="studyTotalDays">📅 Total days completed: 0</div>
                     </div>
 
-                    <div class="tracker-section">
-                        <div class="tracker-label">Hours Studied</div>
-                        <div class="input-group">
-                            <input type="number" id="englishHoursInput" placeholder="Total hours">
-                            <button class="btn-small" id="saveEnglishHoursButton">Save</button>
-                        </div>
-                    </div>
-
+               
                     <div class="tracker-section">
                         <div class="tracker-label">Resources</div>
                         <div class="input-group">
@@ -1876,13 +1871,7 @@
                         </div>
                     </div>
 
-                    <div class="tracker-section">
-                        <div class="tracker-label">Hours Trained</div>
-                        <div class="input-group">
-                            <input type="number" id="gymHoursInput" placeholder="Total hours">
-                            <button class="btn-small" id="saveGymHoursButton">Save</button>
-                        </div>
-                    </div>
+                   
 
                     <div class="tracker-section">
                         <div class="tracker-label">Workout Streak</div>
@@ -1890,6 +1879,8 @@
                             <span class="streak-display" id="gymStreak">0</span>
                             <span class="streak-label"> days workout streak🔥</span>
                         </div>
+                        <div class="progress-text" id="gymBestStreak">🏆 Best streak: 0 days</div>
+                        <div class="progress-text" id="gymTotalDays">📅 Total days completed: 0</div>
                     </div>
 
 
@@ -2000,7 +1991,10 @@
         </section>
 
         <section class="countdown-section">
-           
+            <div style="text-align:center;margin-bottom:35px;">
+                <img src="a qout 361-549.png" alt="Life is a game"
+                    style="display:block;margin:0 auto;max-width:100%;height:auto;opacity:0.9;max-width:360px;width:90%;">
+            </div>
             <h2 class="section-title">The <span>Clock</span></h2>
             <div class="countdown-label">Days until 30th birthday</div>
             <div class="countdown-display" id="countdownDisplay">---</div>
@@ -2064,10 +2058,6 @@
                     <div class="tracker-label">Progress Chart &middot; Last 8 Weeks</div>
                     <div class="chart-wrap" id="progressChart"></div>
                 </div>
-                 <div style="text-align:center;margin-bottom:35px;">
-                <img src="a qout 361-549.png" alt="Life is a game"
-                    style="display:block;margin:0 auto;max-width:100%;height:auto;opacity:0.9;max-width:360px;width:90%;">
-            </div>
             </div>
         </section>
 
